@@ -1,0 +1,23 @@
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+.DS_Store
+
+node_modules
+.project
+.com.greenworldsoft.syncfolderspro
+
+# Remove some common IDE working directories
+.idea
+.vscode
+
+.DS_Store
