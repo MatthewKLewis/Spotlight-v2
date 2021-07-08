@@ -6,7 +6,8 @@ const A = dmx.animation;
 // var universe = dmx.addUniverse('demo', 'enttec-usb-dmx-pro', '/dev/cu.usbserial-6AVNHXS8')
 // var universe = dmx.addUniverse('demo', 'enttec-open-usb-dmx', '/dev/cu.usbserial-6AVNHXS8')
 // const universe = dmx.addUniverse('demo', 'socketio', null, {port: 17809, debug: true});
-const universe = dmx.addUniverse('demo', 'null');
+// const universe = dmx.addUniverse('demo', 'null');
+const universe = dmx.addUniverse("demo", "artnet", "192.168.4.190", {});
 
 universe.update({1: 1, 2: 0});
 universe.update({16: 1, 17: 255});

@@ -22,9 +22,10 @@ var mqttClient = mqtt.connect(MQTT_URI);
 
 //set up DMX universes
 const dmx = new DMX();
-const universe = dmx.addUniverse("demo", "artnet", "192.168.4.190", {});
+const universe0 = dmx.addUniverse("demo", "artnet", "192.168.4.190", {});
+const universe1 = dmx.addUniverse("demo", "artnet", "192.168.4.188", {});
 
-// COMPOSITE OBJECTS
+// COMPOSITE OBJECTS - could be config'd in later
 var spotlights = [];
 spotlights.push({
     x: 0,
@@ -32,7 +33,15 @@ spotlights.push({
     height: 4,
     spotlightOffset: "0",
     assignedTag: "842E1431C72F",
-    device: universe,
+    device: universe0,
+});
+spotlights.push({
+    x: 10,
+    y: 0,
+    height: 4,
+    spotlightOffset: "0",
+    assignedTag: "842E1431C72A",
+    device: universe1,
 });
 
 // TRIGONOMETRY
@@ -66,13 +75,10 @@ function calculatePitchAngle(x, y, spotlight) {
 mqttClient.on("connect", () => {
     console.log("connected");
 });
-
 mqttClient.on("error", () => {
     console.log("error");
 });
-
 mqttClient.subscribe([testTopic, testTopic2], { qos: 2 });
-
 mqttClient.on("message", (topic, message, packet) => {
     var macAddress = topic.substring(24, 36);
     console.log("Target for MAC: " + macAddress);
@@ -85,7 +91,7 @@ mqttClient.on("message", (topic, message, packet) => {
         //inputs
         var targetX = targetCoordinates.x;
         var targetY = targetCoordinates.y;
-        var targetZ = targetCoordinates.z;
+        //var targetZ = targetCoordinates.z;    //ignored
 
         //temp vars
         var yaw = 0;
@@ -106,7 +112,7 @@ mqttClient.on("message", (topic, message, packet) => {
             pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
         }
 
-        // 90 DEGREE OFFSET CALIBRATION
+        // 90 DEGREE OFFSETS
         if (spotlightToMove.spotlightOffset == "90") {
             yaw += 42;
         } else if (spotlightToMove.spotlightOffset == "180") {
@@ -130,10 +136,9 @@ mqttClient.on("message", (topic, message, packet) => {
 
         if (spotlightToMove.device) {
             spotlightToMove.device.update(obj);
-        } else {
-            console.log(
-                `Cannot find device for command : {Yaw: ${yaw}, Pitch ${pitch}, Color: ${color}}`
-            );
+        }
+        else {
+            console.log(`Cannot find device for command : {Yaw: ${yaw}, Pitch ${pitch}, Color: ${color}}`);
         }
     } else {
         console.log("spotlight assigned to " + macAddress + " not found.");
