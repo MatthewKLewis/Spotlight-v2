@@ -1,16 +1,16 @@
 [
     {
-        "x": 0,
-        "y": 0,
-        "height": 4.8768,
-        "spotlightOffset": "0",
-        "assignedTag": "842E1431C72F"
+        "x": 2.68,
+        "y": 0.54,
+        "height": 2.8,
+        "spotlightOffset": "270",
+        "assignedTag": "588E81A552E1"
     },
     {
         "x": 10,
         "y": 0,
-        "height": 4.8768,
-        "spotlightOffset": "0",
+        "height": 2.8,
+        "spotlightOffset": "270",
         "assignedTag": "842E1431C72A"
     }
 ]

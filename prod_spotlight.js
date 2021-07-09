@@ -2,7 +2,6 @@ const DMX = require("./index");
 const mqtt = require("mqtt");
 const spotlightConfig = require('./spotlightConfig.json')
 const dmxDeviceConfig = require('./dmxDeviceConfig.json')
-const tagConfig = require('./tagConfig.json')
 
 //DMX Constants and Colors
 const YAW_COEFF = 2.117;
@@ -19,8 +18,8 @@ const COLOR_YELLOW = 20;
 //set up mqtt subscriber
 const MQTT_URI = "mqtt://localhost:1883";
 const topicFormat = "silabs/aoa/angle/";
-const testTopic0 = "silabs/aoa/angle/ble-pd-" + tagConfig[0].mac;
-const testTopic1 = "silabs/aoa/angle/ble-pd-" + tagConfig[1].mac;
+const testTopic0 = "silabs/aoa/position/multilocator-demo/ble-pd-" + spotlightConfig[0].assignedTag;
+const testTopic1 = "silabs/aoa/angle/ble-pd-" + spotlightConfig[1].assignedTag;
 var mqttClient = mqtt.connect(MQTT_URI);
 
 //set up DMX universes
@@ -71,7 +70,8 @@ mqttClient.on("error", () => {
 });
 mqttClient.subscribe([testTopic0, testTopic1], { qos: 2 });
 mqttClient.on("message", (topic, message, packet) => {
-    var macAddress = topic.substring(24, 36);
+    var macAddress = topic.substring(45, 57);
+    console.log(macAddress)
     console.log("Target for MAC: " + macAddress);
     var spotlightToMove = findSpotlightAssociatedWith(macAddress);
 
@@ -113,7 +113,7 @@ mqttClient.on("message", (topic, message, packet) => {
         } else if (spotlightToMove.spotlightOffset == "180") {
             yaw += 84;
         } else if (spotlightToMove.spotlightOffset == "270") {
-            yaw -= 42;
+            yaw += 126;
         }
 
         console.log("Digits sent to spotlight( Yaw: " + yaw + ", Pitch: " + pitch + ")");
@@ -122,10 +122,10 @@ mqttClient.on("message", (topic, message, packet) => {
             2: 0, //yaw fine tune
             3: pitch,
             4: 0, //pitch fine tune
-            5: color,
+            5: COLOR_WHITE,
             6: 0,
             7: 0, //strobe
-            8: 10, //req.body.lum
+            8: 30, //req.body.lum
             9: 0,
         };
 
