@@ -1,5 +1,7 @@
 const DMX = require("./index");
 const mqtt = require("mqtt");
+const spotlightConfig = require('./spotlightConfig.json')
+const dmxDeviceConfig = require('./dmxDeviceConfig.json')
 
 //DMX Constants and Colors
 const YAW_COEFF = 2.117;
@@ -22,27 +24,15 @@ var mqttClient = mqtt.connect(MQTT_URI);
 
 //set up DMX universes
 const dmx = new DMX();
-const universe0 = dmx.addUniverse("demo", "artnet", "192.168.4.190", {});
-const universe1 = dmx.addUniverse("demo", "artnet", "192.168.4.188", {});
-
-// COMPOSITE OBJECTS - could be config'd in later
-var spotlights = [];
-spotlights.push({
-    x: 0,
-    y: 0,
-    height: 4,
-    spotlightOffset: "0",
-    assignedTag: "842E1431C72F",
-    device: universe0,
-});
-spotlights.push({
-    x: 10,
-    y: 0,
-    height: 4,
-    spotlightOffset: "0",
-    assignedTag: "842E1431C72A",
-    device: universe1,
-});
+var universes = []
+dmxDeviceConfig.forEach((device)=>{
+    universes.push(dmx.addUniverse(device.name, device.driver, device.deviceId))
+})
+var spotlights = spotlightConfig;
+for (let i = 0; i < spotlightConfig.length; i++) {
+    spotlights[i].device = universes[i]
+}
+//console.log(spotlights)
 
 // TRIGONOMETRY
 function findSpotlightAssociatedWith(mac) {
@@ -91,7 +81,7 @@ mqttClient.on("message", (topic, message, packet) => {
         //inputs
         var targetX = targetCoordinates.x;
         var targetY = targetCoordinates.y;
-        //var targetZ = targetCoordinates.z;    //ignored
+        //var targetZ = targetCoordinates.z;
 
         //temp vars
         var yaw = 0;
@@ -136,8 +126,7 @@ mqttClient.on("message", (topic, message, packet) => {
 
         if (spotlightToMove.device) {
             spotlightToMove.device.update(obj);
-        }
-        else {
+        } else {
             console.log(`Cannot find device for command : {Yaw: ${yaw}, Pitch ${pitch}, Color: ${color}}`);
         }
     } else {

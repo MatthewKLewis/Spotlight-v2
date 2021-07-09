@@ -1,0 +1,12 @@
+[
+    {
+        "name": "demo0",
+        "driver": "artnet",
+        "deviceId": "842E1431C72F"
+    },
+    {
+        "name": "demo1",
+        "driver": "artnet",
+        "deviceId": "842E1431C72A"
+    }
+]
