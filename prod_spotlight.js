@@ -19,7 +19,7 @@ const COLOR_YELLOW = 20;
 const MQTT_URI = "mqtt://localhost:1883";
 const topicFormat = "silabs/aoa/angle/";
 const testTopic0 = "silabs/aoa/position/multilocator-demo/ble-pd-" + spotlightConfig[0].assignedTag;
-const testTopic1 = "silabs/aoa/angle/ble-pd-" + spotlightConfig[1].assignedTag;
+const testTopic1 = "silabs/aoa/position/multilocator-demo/ble-pd-" + spotlightConfig[1].assignedTag;
 var mqttClient = mqtt.connect(MQTT_URI);
 
 //set up DMX universes
@@ -71,58 +71,119 @@ mqttClient.on("error", () => {
 mqttClient.subscribe([testTopic0, testTopic1], { qos: 2 });
 mqttClient.on("message", (topic, message, packet) => {
     var macAddress = topic.substring(45, 57);
-    console.log(macAddress)
-    console.log("Target for MAC: " + macAddress);
     var spotlightToMove = findSpotlightAssociatedWith(macAddress);
-
     if (spotlightToMove) {
         var targetCoordinates = JSON.parse(message.toString());
-        console.log(targetCoordinates);
+        //console.log(targetCoordinates)
 
         //inputs
         var targetX = targetCoordinates.x;
         var targetY = targetCoordinates.y;
-        //var targetZ = targetCoordinates.z;
 
         //temp vars
         var yaw = 0;
         var pitch = 0;
         var color = COLOR_WHITE;
 
-        if (targetY <= spotlightToMove.y && targetX > spotlightToMove.x) {
-            yaw = Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)
-            pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
-            color = COLOR_BLUE
-        } else if (targetY > spotlightToMove.y && targetX > spotlightToMove.x) {
-            yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
-            pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
-            color = COLOR_ORANGE
-        } else if (targetY <= spotlightToMove.y && targetX <= spotlightToMove.x) {
-            yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
-            pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
-            color = COLOR_BLUE
-        } else if (targetY > spotlightToMove.y && targetX <= spotlightToMove.x) {
-            yaw = Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)
-            pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
-            color = COLOR_ORANGE
+        pitch = 0;
+        pitch = Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+
+        //DEAD ON (testing)
+        if (targetX == spotlightToMove.x && targetY == spotlightToMove.y) {
+            console.log('center')
+            yaw = 43
+            pitch = 128
+            var color = COLOR_BLUE;
+        } else {
+            // //Y QUADRANTS
+            // if (targetY > spotlightToMove.y) {
+            //     console.log('south')
+            //     pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            // } else {
+            //     console.log('north')
+            //     pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            // }
+
+            // //X QUADRANTS
+            // if (targetX > spotlightToMove.x) {
+            //     console.log('west')
+            //     var color = COLOR_YELLOW;
+            //     yaw = 43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+            // } else { //targetX < spotlightToMove.x
+            //     console.log('east')
+            //     var color = COLOR_ORANGE;
+            //     yaw = 43 + (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+            // }
+            if (spotlightToMove.spotlightOffset == '0') {
+                console.log("NO OFFSET")
+                if (targetY <= spotlightToMove.y && targetX > spotlightToMove.x) {
+                    console.log("topic " + macAddress + " position above spot, right of spot")
+                    yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+    
+                } else if (targetY > spotlightToMove.y && targetX > spotlightToMove.x) { //GOOD
+                    console.log("topic " + macAddress + " position below spot, right of spot")
+                    yaw = 43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+    
+                } else if (targetY <= spotlightToMove.y && targetX <= spotlightToMove.x) {
+                    console.log("topic " + macAddress + " position above spot, left of spot")
+                    yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+    
+                } else if (targetY > spotlightToMove.y && targetX <= spotlightToMove.x) { //GOOD
+                    console.log("topic " + macAddress + " position below spot, left of spot")
+                    yaw = 43 + (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+                } else {
+                    console.log("ERROR!")
+                }
+            } else if (spotlightToMove.spotlightOffset == '180') {
+                console.log("180 DEGREE OFFSET")
+                if (targetY <= spotlightToMove.y && targetX > spotlightToMove.x) { //FLIP YAW
+                    console.log("topic " + macAddress + " position above spot, right of spot")
+
+
+
+                    //GOD HELP ME
+
+
+                    yaw = 43 + (43 - Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF) ) 
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+
+
+                    //GOD HELP ME
+
+    
+                } else if (targetY > spotlightToMove.y && targetX > spotlightToMove.x) { //GOOD
+                    console.log("topic " + macAddress + " position below spot, right of spot")
+                    yaw = 43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+    
+                } else if (targetY <= spotlightToMove.y && targetX <= spotlightToMove.x) {
+                    console.log("topic " + macAddress + " position above spot, left of spot")
+                    yaw = 43 + (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+    
+                } else if (targetY > spotlightToMove.y && targetX <= spotlightToMove.x) { //GOOD
+                    console.log("topic " + macAddress + " position below spot, left of spot")
+                    yaw = 43 + (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF))
+                    pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+                } else {
+                    console.log("ERROR!")
+                }
+            }
         }
 
-        // 90 DEGREE OFFSETS
-        if (spotlightToMove.spotlightOffset == "90") {
-            yaw += 42;
-        } else if (spotlightToMove.spotlightOffset == "180") {
-            yaw += 84;
-        } else if (spotlightToMove.spotlightOffset == "270") {
-            yaw += 126;
-        }
+        pitch = 0
+        console.log(yaw)
 
-        console.log("Digits sent to spotlight( Yaw: " + yaw + ", Pitch: " + pitch + ")");
         obj = {
             1: yaw,
             2: 0, //yaw fine tune
             3: pitch,
             4: 0, //pitch fine tune
-            5: COLOR_WHITE,
+            5: color,
             6: 0,
             7: 0, //strobe
             8: 30, //req.body.lum
@@ -134,8 +195,8 @@ mqttClient.on("message", (topic, message, packet) => {
         } else {
             console.log(`Cannot find device for command : {Yaw: ${yaw}, Pitch ${pitch}, Color: ${color}}`);
         }
+        console.log('--------------------')
     } else {
         console.log("spotlight assigned to " + macAddress + " not found.");
     }
-    console.log("--------------");
 });

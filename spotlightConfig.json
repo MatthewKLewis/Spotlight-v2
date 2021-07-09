@@ -3,14 +3,14 @@
         "x": 2.68,
         "y": 0.54,
         "height": 2.8,
-        "spotlightOffset": "270",
-        "assignedTag": "588E81A552E1"
+        "spotlightOffset": "0",
+        "assignedTag": "AAAAAAAAAAAA"
     },
     {
-        "x": 10,
-        "y": 0,
+        "x": 2.68,
+        "y": 4.27,
         "height": 2.8,
-        "spotlightOffset": "270",
-        "assignedTag": "842E1431C72A"
+        "spotlightOffset": "180",
+        "assignedTag": "BBBBBBBBBBBB"
     }
 ]
