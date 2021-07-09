@@ -2,6 +2,7 @@ const DMX = require("./index");
 const mqtt = require("mqtt");
 const spotlightConfig = require('./spotlightConfig.json')
 const dmxDeviceConfig = require('./dmxDeviceConfig.json')
+const tagConfig = require('./tagConfig.json')
 
 //DMX Constants and Colors
 const YAW_COEFF = 2.117;
@@ -17,9 +18,9 @@ const COLOR_YELLOW = 20;
 
 //set up mqtt subscriber
 const MQTT_URI = "mqtt://localhost:1883";
-const testTopic = "silabs/aoa/angle/ble-pd-842E1431C72F";
-const testTopic2 = "silabs/aoa/angle/ble-pd-842E1431C72A";
 const topicFormat = "silabs/aoa/angle/";
+const testTopic0 = "silabs/aoa/angle/ble-pd-" + tagConfig[0].mac;
+const testTopic1 = "silabs/aoa/angle/ble-pd-" + tagConfig[1].mac;
 var mqttClient = mqtt.connect(MQTT_URI);
 
 //set up DMX universes
@@ -49,7 +50,7 @@ function calculateYawAngle(x, y, spotlight) {
     var opposite = Math.abs(spotlight.x - x)
     var adjacent = Math.abs(spotlight.y - y)
     var arcTan = (Math.atan(opposite / adjacent || 0) * (180 / Math.PI))
-    console.log("Yaw Angle: " + arcTan)
+    //console.log("Yaw Angle: " + arcTan)
     return arcTan
 }
 function calculatePitchAngle(x, y, spotlight) {
@@ -57,7 +58,7 @@ function calculatePitchAngle(x, y, spotlight) {
     var adjacent = Math.abs(spotlight.y - y)
     var hypotenuse = Math.sqrt(Math.pow(opposite, 2) + Math.pow(adjacent, 2))
     var arcTan = (Math.atan(hypotenuse / spotlight.height) * (180 / Math.PI))
-    console.log("Pitch Angle: " + arcTan)
+    //console.log("Pitch Angle: " + arcTan)
     return arcTan
 }
 
@@ -68,7 +69,7 @@ mqttClient.on("connect", () => {
 mqttClient.on("error", () => {
     console.log("error");
 });
-mqttClient.subscribe([testTopic, testTopic2], { qos: 2 });
+mqttClient.subscribe([testTopic0, testTopic1], { qos: 2 });
 mqttClient.on("message", (topic, message, packet) => {
     var macAddress = topic.substring(24, 36);
     console.log("Target for MAC: " + macAddress);
@@ -91,15 +92,19 @@ mqttClient.on("message", (topic, message, packet) => {
         if (targetY <= spotlightToMove.y && targetX > spotlightToMove.x) {
             yaw = Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)
             pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            color = COLOR_BLUE
         } else if (targetY > spotlightToMove.y && targetX > spotlightToMove.x) {
             yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
             pitch = 128 - Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            color = COLOR_ORANGE
         } else if (targetY <= spotlightToMove.y && targetX <= spotlightToMove.x) {
             yaw = 43 + (43 - (Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)))
             pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            color = COLOR_BLUE
         } else if (targetY > spotlightToMove.y && targetX <= spotlightToMove.x) {
             yaw = Math.floor(calculateYawAngle(targetX, targetY, spotlightToMove) / YAW_COEFF)
             pitch = 128 + Math.floor(calculatePitchAngle(targetX, targetY, spotlightToMove) / PITCH_COEFF)
+            color = COLOR_ORANGE
         }
 
         // 90 DEGREE OFFSETS
@@ -111,7 +116,7 @@ mqttClient.on("message", (topic, message, packet) => {
             yaw -= 42;
         }
 
-        console.log("VARS... Yaw: " + yaw + " Pitch: " + pitch);
+        console.log("Digits sent to spotlight( Yaw: " + yaw + ", Pitch: " + pitch + ")");
         obj = {
             1: yaw,
             2: 0, //yaw fine tune

@@ -2,11 +2,11 @@
     {
         "name": "demo0",
         "driver": "artnet",
-        "deviceId": "842E1431C72F"
+        "deviceId": "192.168.4.190"
     },
     {
         "name": "demo1",
         "driver": "artnet",
-        "deviceId": "842E1431C72A"
+        "deviceId": "192.168.4.188"
     }
 ]

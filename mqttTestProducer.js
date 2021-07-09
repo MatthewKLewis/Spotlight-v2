@@ -26,11 +26,11 @@ index = 0;
 setInterval(() => {
   if (index % 2 == 0) {
     mqttClient.publish(testTopic0, JSON.stringify(testPattern[index]), {}, () => {
-      console.log("even.");
+      console.log("msg for 842E1431C72F.");
     });
   } else {
     mqttClient.publish(testTopic1, JSON.stringify(testPattern[index]), {}, () => {
-      console.log("odd.");
+      console.log("msg for AAAAAAAAAAAA.");
     });
   }
   //run the length, reset when done.
