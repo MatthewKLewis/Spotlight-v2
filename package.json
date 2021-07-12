@@ -18,6 +18,8 @@
     "light control"
   ],
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "mqtt": "^4.2.8",
     "sacn": "^3.2.1",
     "serialport": "^8.0.8",
