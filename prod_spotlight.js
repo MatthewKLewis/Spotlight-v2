@@ -123,7 +123,7 @@ mqttClient.on("message", (topic, message, packet) => {
             5: color,
             6: 0,
             7: 0, //strobe
-            8: 90, //req.body.lum
+            8: 0, //req.body.lum
             9: 0,
         };
 
