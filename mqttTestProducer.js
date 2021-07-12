@@ -15,19 +15,19 @@ var mqttClient = mqtt.connect(MQTT_URI); //no options
 app.use(cors());
 app.use(express.json());
 
-// app.route('/api/move/:id').post((req, res) => {
-//   var spotId = req.params.id
-//   var testPattern = req.body
-//   console.log(spotId)
-//   console.log(testPattern)
-//   mqttClient.publish(testTopic0, JSON.stringify(testPattern), {}, () => {
-//     console.log('sent');
-//   });
-//   mqttClient.publish(testTopic1, JSON.stringify(testPattern), {}, () => {
-//     console.log('sent');
-//   });
-//   res.json({message: 'ok'})
-// });
+app.route('/api/move/:id').post((req, res) => {
+  var spotId = req.params.id
+  var testPattern = req.body
+  console.log(spotId)
+  console.log(testPattern)
+  mqttClient.publish(testTopic0, JSON.stringify(testPattern), {}, () => {
+    console.log('sent');
+  });
+  mqttClient.publish(testTopic1, JSON.stringify(testPattern), {}, () => {
+    console.log('sent');
+  });
+  res.json({message: 'ok'})
+});
 mqttClient.on("connect", () => {
   console.log("connected");
 });
@@ -42,8 +42,8 @@ app.listen(port, () => {
 
 // OLD
 var testPattern0 = [
-  { x: 2.76, y: 2.76, z: 0 }, //room center
-  { x: 0.76, y: 0.76, z: 0 }, //left above
+  // { x: 2.76, y: 2.76, z: 0 }, //room center
+  // { x: 0.76, y: 0.76, z: 0 }, //left above
   // { x: 1.4, y: 0.76, z: 0 }, //leftish above
   // { x: 2.6, y: 0.76, z: 0 }, //center above
   // { x: 2.6, y: 0.2, z: 0 }, //center above far
@@ -54,8 +54,8 @@ var testPattern0 = [
 ];
 
 var testPattern1 = [
-  { x: 2.76, y: 2.76, z: 0 }, //room center
-  { x: 0.76, y: 4.27, z: 0 }, //left below
+  // { x: 2.76, y: 2.76, z: 0 }, //room center
+  // { x: 0.76, y: 4.27, z: 0 }, //left below
   // { x: 1.4, y: 4.27, z: 0 }, //leftish below
   // { x: 2.6, y: 4.27, z: 0 }, //center below
   // { x: 2.6, y: 6, z: 0 }, //center below far
@@ -64,15 +64,15 @@ var testPattern1 = [
   // { x: 3.8, y: 4.27, z: 0 }, //rightish below
   // { x: 5.03, y: 4.27, z: 0 }, //right below
 ];
-index = 0;
-setInterval(() => {
-    mqttClient.publish(testTopic0, JSON.stringify(testPattern0[index]), {}, () => {
-      console.log(testPattern0[index])
-    });
-    mqttClient.publish(testTopic1, JSON.stringify(testPattern0[index]), {}, () => {
-      console.log(testPattern0[index])
-    });
-  index++;
-  if (index == testPattern0.length) {index = 0}
-  console.log('-----------------')
-}, 4000);
+// index = 0;
+// setInterval(() => {
+//     mqttClient.publish(testTopic0, JSON.stringify(testPattern0[index]), {}, () => {
+//       console.log(testPattern0[index])
+//     });
+//     mqttClient.publish(testTopic1, JSON.stringify(testPattern0[index]), {}, () => {
+//       console.log(testPattern0[index])
+//     });
+//   index++;
+//   if (index == testPattern0.length) {index = 0}
+//   console.log('-----------------')
+// }, 4000);
