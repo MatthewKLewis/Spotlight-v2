@@ -1,5 +1,5 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 var mqtt = require("mqtt");
 
 const MQTT_URI = "mqtt://localhost:1883";
@@ -8,25 +8,38 @@ const testTopic1 = "silabs/aoa/position/multilocator-demo/ble-pd-BBBBBBBBBBBB";
 
 //set up express and mqtt
 const app = express();
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 var mqttClient = mqtt.connect(MQTT_URI); //no options
 
 //assign middleware
 app.use(cors());
 app.use(express.json());
 
-app.route('/api/move/:id').post((req, res) => {
-  var spotId = req.params.id
-  var testPattern = req.body
-  console.log(spotId)
-  console.log(testPattern)
-  mqttClient.publish(testTopic0, JSON.stringify(testPattern), {}, () => {
-    console.log('sent');
-  });
-  mqttClient.publish(testTopic1, JSON.stringify(testPattern), {}, () => {
-    console.log('sent');
-  });
-  res.json({message: 'ok'})
+app.route("/api/move/:id").post((req, res) => {
+  var spotId = req.params.id;
+  var testPattern = req.body;
+  console.log(spotId);
+  console.log(testPattern);
+  if (req.params.id == 0) {
+    //0
+    mqttClient.publish(testTopic0, JSON.stringify(testPattern), {}, () => {
+      console.log("sent");
+    });
+  } else if (req.params.id == 1) {
+    //1
+    mqttClient.publish(testTopic1, JSON.stringify(testPattern), {}, () => {
+      console.log("sent");
+    });
+  } else {
+    //BOTH
+    mqttClient.publish(testTopic0, JSON.stringify(testPattern), {}, () => {
+      console.log("sent");
+    });
+    mqttClient.publish(testTopic1, JSON.stringify(testPattern), {}, () => {
+      console.log("sent");
+    });
+  }
+  res.json({ message: "ok" });
 });
 mqttClient.on("connect", () => {
   console.log("connected");
@@ -36,9 +49,8 @@ mqttClient.on("error", () => {
 });
 
 app.listen(port, () => {
-  console.log(`Listening on port ${port}.`)
+  console.log(`Listening on port ${port}.`);
 });
-
 
 // OLD
 var testPattern0 = [
